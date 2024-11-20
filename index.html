@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google</title>
+    <link rel="icon" href="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .container {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #ff6a00, #ee0979);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .container:hover {
+            background-color: #ee0979;
+        }
+
+        .container p {
+            font-family: 'Anton', sans-serif;
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5), 0 0 25px #ff6a00, 0 0 5px #ff6a00;
+            letter-spacing: 2px;
+            transition: text-shadow 0.3s ease;
+        }
+
+        .container:hover p {
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.8), 0 0 25px #ff0979, 0 0 5px #ff0979;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" onclick="loadGitHubRepo()">
+        <p>Click me to open Pulsar site inside about:blank!</p>
+    </div>
+
+    <script>
+        function loadGitHubRepo() {
+            // Open a new about:blank window
+            var newWindow = window.open('about:blank', '_blank');
+
+            // Fetch all files from /public and /Games directories
+            const directories = ['public', 'Games'];
+            directories.forEach(dir => {
+                fetchFilesFromDirectory('AbominableGames', 'Pulsar', dir)
+                    .then(files => {
+                        // Inject HTML content, then CSS, JS, Images
+                        files.forEach(file => {
+                            const filePath = `https://raw.githubusercontent.com/AbominableGames/Pulsar/main/${dir}/${file}`;
+                            if (file.endsWith('.html')) {
+                                injectHTML(filePath, newWindow);
+                            } else if (file.endsWith('.css')) {
+                                injectCSS(filePath, newWindow);
+                            } else if (file.endsWith('.js')) {
+                                injectJS(filePath, newWindow);
+                            } else if (file.match(/\.(png|jpg|gif)$/)) {
+                                injectImage(filePath, newWindow);
+                            }
+                        });
+                    })
+                    .catch(error => console.error('Error fetching files from GitHub:', error));
+            });
+        }
+
+        // Fetch all files from a directory in the GitHub repository
+        function fetchFilesFromDirectory(user, repo, path) {
+            let apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
+            return fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    return data.map(item => item.name); // Return file names from directory
+                })
+                .catch(error => console.error('Error fetching directory contents:', error));
+        }
+
+        // Inject HTML file into the about:blank window
+        function injectHTML(filePath, newWindow) {
+            fetch(filePath)
+                .then(response => response.text())
+                .then(html => {
+                    newWindow.document.open();
+                    newWindow.document.write(html);
+                    newWindow.document.close();
+                })
+                .catch(error => console.error('Error injecting HTML:', error));
+        }
+
+        // Inject CSS file into the about:blank window
+        function injectCSS(filePath, newWindow) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = filePath;
+            newWindow.document.head.appendChild(link);
+        }
+
+        // Inject JS file into the about:blank window
+        function injectJS(filePath, newWindow) {
+            const script = document.createElement('script');
+            script.src = filePath;
+            script.onload = () => console.log(`${filePath} loaded`);
+            newWindow.document.body.appendChild(script);
+        }
+
+        // Inject Image into the about:blank window
+        function injectImage(filePath, newWindow) {
+            const img = document.createElement('img');
+            img.src = filePath;
+            newWindow.document.body.appendChild(img);
+        }
+    </script>
+</body>
+</html>
