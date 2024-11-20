@@ -59,6 +59,11 @@
             // Open a new about:blank window
             var newWindow = window.open('about:blank', '_blank');
 
+            // Ensure the new window has a document to work with
+            newWindow.document.open();
+            newWindow.document.write("<html><head><title>Pulsar</title></head><body></body></html>");
+            newWindow.document.close();
+
             // Fetch files from /public and /Games directories
             const directories = ['public', 'Games'];
             directories.forEach(dir => {
