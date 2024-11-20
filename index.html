@@ -59,12 +59,12 @@
             // Open a new about:blank window
             var newWindow = window.open('about:blank', '_blank');
 
-            // Fetch all files from /public and /Games directories
+            // Fetch files from /public and /Games directories
             const directories = ['public', 'Games'];
             directories.forEach(dir => {
                 fetchFilesFromDirectory('AbominableGames', 'Pulsar', dir)
                     .then(files => {
-                        // Inject HTML content, then CSS, JS, Images
+                        // Inject HTML content first, then CSS, JS, Images
                         files.forEach(file => {
                             const filePath = `https://raw.githubusercontent.com/AbominableGames/Pulsar/main/${dir}/${file}`;
                             if (file.endsWith('.html')) {
@@ -82,7 +82,7 @@
             });
         }
 
-        // Fetch all files from a directory in the GitHub repository
+        // Fetch files from a directory in the GitHub repository
         function fetchFilesFromDirectory(user, repo, path) {
             let apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
             return fetch(apiUrl)
