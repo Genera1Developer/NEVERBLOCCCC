@@ -24,14 +24,13 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            background: linear-gradient(135deg, #ff6a00, #ee0979);
-            border-radius: 8px;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
 
         .container:hover {
-            background-color: #ee0979;
+            background-color: #2575fc;
         }
 
         .container p {
@@ -39,19 +38,19 @@
             font-size: 48px;
             font-weight: bold;
             color: white;
-            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5), 0 0 25px #ff6a00, 0 0 5px #ff6a00;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6), 0 0 15px #6a11cb, 0 0 10px #2575fc;
             letter-spacing: 2px;
             transition: text-shadow 0.3s ease;
         }
 
         .container:hover p {
-            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.8), 0 0 25px #ff0979, 0 0 5px #ff0979;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8), 0 0 25px #6a11cb, 0 0 15px #2575fc;
         }
     </style>
 </head>
 <body>
     <div class="container" onclick="loadGitHubRepo()">
-        <p>Click me to open Pulsar site inside about:blank!</p>
+        <p>Click Here To Open Education Hub</p>
     </div>
 
     <script>
@@ -59,58 +58,54 @@
             // Open a new about:blank window
             var newWindow = window.open('about:blank', '_blank');
 
-            // Ensure the new window has a document to work with
+            // Set a basic HTML structure for the new window
             newWindow.document.open();
-            newWindow.document.write("<html><head><title>Pulsar</title></head><body></body></html>");
+            newWindow.document.write('<!DOCTYPE html><html lang="en"><head><title>Education Hub</title></head><body></body></html>');
             newWindow.document.close();
 
-            // Fetch files from /public and /Games directories
+            // Directories to load files from
             const directories = ['public', 'Games'];
-            directories.forEach(dir => {
-                fetchFilesFromDirectory('AbominableGames', 'Pulsar', dir)
+
+            directories.forEach(directory => {
+                fetchFilesFromGitHub('AbominableGames', 'Pulsar', directory)
                     .then(files => {
-                        // Inject HTML content first, then CSS, JS, Images
                         files.forEach(file => {
-                            const filePath = `https://raw.githubusercontent.com/AbominableGames/Pulsar/main/${dir}/${file}`;
+                            const filePath = `https://raw.githubusercontent.com/AbominableGames/Pulsar/main/${directory}/${file}`;
                             if (file.endsWith('.html')) {
                                 injectHTML(filePath, newWindow);
                             } else if (file.endsWith('.css')) {
                                 injectCSS(filePath, newWindow);
                             } else if (file.endsWith('.js')) {
                                 injectJS(filePath, newWindow);
-                            } else if (file.match(/\.(png|jpg|gif)$/)) {
+                            } else if (file.match(/\.(png|jpg|jpeg|gif)$/)) {
                                 injectImage(filePath, newWindow);
                             }
                         });
                     })
-                    .catch(error => console.error('Error fetching files from GitHub:', error));
+                    .catch(error => console.error(`Error fetching files from ${directory}:`, error));
             });
         }
 
-        // Fetch files from a directory in the GitHub repository
-        function fetchFilesFromDirectory(user, repo, path) {
-            let apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
+        function fetchFilesFromGitHub(user, repo, path) {
+            const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
             return fetch(apiUrl)
                 .then(response => response.json())
-                .then(data => {
-                    return data.map(item => item.name); // Return file names from directory
-                })
-                .catch(error => console.error('Error fetching directory contents:', error));
+                .then(data => data.map(item => item.name)) // Return only file names
+                .catch(error => {
+                    console.error('Error fetching directory contents:', error);
+                    return [];
+                });
         }
 
-        // Inject HTML file into the about:blank window
         function injectHTML(filePath, newWindow) {
             fetch(filePath)
                 .then(response => response.text())
                 .then(html => {
-                    newWindow.document.open();
-                    newWindow.document.write(html);
-                    newWindow.document.close();
+                    newWindow.document.body.innerHTML += html; // Append the HTML
                 })
-                .catch(error => console.error('Error injecting HTML:', error));
+                .catch(error => console.error(`Error injecting HTML from ${filePath}:`, error));
         }
 
-        // Inject CSS file into the about:blank window
         function injectCSS(filePath, newWindow) {
             const link = document.createElement('link');
             link.rel = 'stylesheet';
@@ -118,18 +113,18 @@
             newWindow.document.head.appendChild(link);
         }
 
-        // Inject JS file into the about:blank window
         function injectJS(filePath, newWindow) {
             const script = document.createElement('script');
             script.src = filePath;
-            script.onload = () => console.log(`${filePath} loaded`);
+            script.onload = () => console.log(`Loaded JS: ${filePath}`);
             newWindow.document.body.appendChild(script);
         }
 
-        // Inject Image into the about:blank window
         function injectImage(filePath, newWindow) {
             const img = document.createElement('img');
             img.src = filePath;
+            img.style.maxWidth = '100%';
+            img.style.height = 'auto';
             newWindow.document.body.appendChild(img);
         }
     </script>
