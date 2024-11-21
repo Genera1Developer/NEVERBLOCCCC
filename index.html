@@ -49,84 +49,90 @@
     </style>
 </head>
 <body>
-    <div class="container" onclick="loadGitHubRepo()">
+    <div class="container" id="button-container">
         <p>Click Here To Open Education Hub</p>
     </div>
 
     <script>
-        function loadGitHubRepo() {
-            // Open a new about:blank window
-            var newWindow = window.open('about:blank', '_blank');
+        // Ensure DOM is fully loaded before running scripts
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('button-container');
+            container.addEventListener('click', loadGitHubRepo);
 
-            // Set a basic HTML structure for the new window
-            newWindow.document.open();
-            newWindow.document.write('<!DOCTYPE html><html lang="en"><head><title>Education Hub</title></head><body></body></html>');
-            newWindow.document.close();
+            function loadGitHubRepo() {
+                // Open a new about:blank window
+                var newWindow = window.open('about:blank', '_blank');
 
-            // Directories to load files from
-            const directories = ['public', 'Games'];
+                // Set a basic HTML structure for the new window
+                newWindow.document.open();
+                newWindow.document.write('<!DOCTYPE html><html lang="en"><head><title>Education Hub</title></head><body></body></html>');
+                newWindow.document.close();
 
-            directories.forEach(directory => {
-                fetchFilesFromGitHub('AbominableGames', 'Pulsar', directory)
-                    .then(files => {
-                        files.forEach(file => {
-                            const filePath = `https://raw.githubusercontent.com/AbominableGames/Pulsar/main/${directory}/${file}`;
-                            if (file.endsWith('.html')) {
-                                injectHTML(filePath, newWindow);
-                            } else if (file.endsWith('.css')) {
-                                injectCSS(filePath, newWindow);
-                            } else if (file.endsWith('.js')) {
-                                injectJS(filePath, newWindow);
-                            } else if (file.match(/\.(png|jpg|jpeg|gif)$/)) {
-                                injectImage(filePath, newWindow);
-                            }
-                        });
-                    })
-                    .catch(error => console.error(`Error fetching files from ${directory}:`, error));
-            });
-        }
+                // Directories to load files from
+                const directories = ['public', 'Games'];
 
-        function fetchFilesFromGitHub(user, repo, path) {
-            const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
-            return fetch(apiUrl)
-                .then(response => response.json())
-                .then(data => data.map(item => item.name)) // Return only file names
-                .catch(error => {
-                    console.error('Error fetching directory contents:', error);
-                    return [];
+                directories.forEach(directory => {
+                    fetchFilesFromGitHub('AbominableGames', 'Pulsar', directory)
+                        .then(files => {
+                            files.forEach(file => {
+                                const filePath = `https://raw.githubusercontent.com/AbominableGames/Pulsar/main/${directory}/${file}`;
+                                if (file.endsWith('.html')) {
+                                    injectHTML(filePath, newWindow);
+                                } else if (file.endsWith('.css')) {
+                                    injectCSS(filePath, newWindow);
+                                } else if (file.endsWith('.js')) {
+                                    injectJS(filePath, newWindow);
+                                } else if (file.match(/\.(png|jpg|jpeg|gif)$/)) {
+                                    injectImage(filePath, newWindow);
+                                }
+                            });
+                        })
+                        .catch(error => console.error(`Error fetching files from ${directory}:`, error));
                 });
-        }
+            }
 
-        function injectHTML(filePath, newWindow) {
-            fetch(filePath)
-                .then(response => response.text())
-                .then(html => {
-                    newWindow.document.body.innerHTML += html; // Append the HTML
-                })
-                .catch(error => console.error(`Error injecting HTML from ${filePath}:`, error));
-        }
+            function fetchFilesFromGitHub(user, repo, path) {
+                const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
+                return fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => data.map(item => item.name)) // Return only file names
+                    .catch(error => {
+                        console.error('Error fetching directory contents:', error);
+                        return [];
+                    });
+            }
 
-        function injectCSS(filePath, newWindow) {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = filePath;
-            newWindow.document.head.appendChild(link);
-        }
+            function injectHTML(filePath, newWindow) {
+                fetch(filePath)
+                    .then(response => response.text())
+                    .then(html => {
+                        newWindow.document.body.innerHTML += html; // Append the HTML
+                    })
+                    .catch(error => console.error(`Error injecting HTML from ${filePath}:`, error));
+            }
 
-        function injectJS(filePath, newWindow) {
-            const script = document.createElement('script');
-            script.src = filePath;
-            script.onload = () => console.log(`Loaded JS: ${filePath}`);
-            newWindow.document.body.appendChild(script);
-        }
+            function injectCSS(filePath, newWindow) {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = filePath;
+                newWindow.document.head.appendChild(link);
+            }
 
-        function injectImage(filePath, newWindow) {
-            const img = document.createElement('img');
-            img.src = filePath;
-            img.style.maxWidth = '100%';
-            img.style.height = 'auto';
-            newWindow.document.body.appendChild(img);
-        }
+            function injectJS(filePath, newWindow) {
+                const script = document.createElement('script');
+                script.src = filePath;
+                script.onload = () => console.log(`Loaded JS: ${filePath}`);
+                newWindow.document.body.appendChild(script);
+            }
+
+            function injectImage(filePath, newWindow) {
+                const img = document.createElement('img');
+                img.src = filePath;
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                newWindow.document.body.appendChild(img);
+            }
+        });
     </script>
 </body>
 </html>
